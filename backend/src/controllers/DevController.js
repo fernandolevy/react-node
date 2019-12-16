@@ -7,6 +7,7 @@ module.exports = {
 
     const users = await Dev.aggregate([
       { $unwind: "$comments" },
+      { $match: { "comments.banned": false } },
       { $sort: { "comments.ranking": -1 } }
     ]);
     return res.json(users);

@@ -18,6 +18,8 @@ const DevSchema = new Schema(
     comments: [
       {
         comment: String,
+        banned: Boolean,
+        position: Number,
         likes: Number,
         dislikes: Number,
         ranking: Number

@@ -1,24 +1,31 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
+require("dotenv").config();
 
-const routes = require('./routes');
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const morgan = require("morgan");
+const path = require("path");
+
+const routes = require("./routes");
 
 const app = express();
-const server = require('http').Server(app);
-const io = require('socket.io')(server);
+const server = require("http").Server(app);
+const io = require("socket.io")(server);
 
 const connectedUsers = {};
 
-io.on('connection', socket => {
+io.on("connection", socket => {
   const { user } = socket.handshake.query;
 
   connectedUsers[user] = socket.id;
 });
 
-mongoose.connect('mongodb+srv://levy:fab8875c@cluster0-07bgq.mongodb.net/usuarios?retryWrites=true&w=majority', {
-  useNewUrlParser: true
-});
+mongoose.connect(
+  "mongodb+srv://levy:fab8875c@cluster0-07bgq.mongodb.net/usuarios?retryWrites=true&w=majority",
+  {
+    useNewUrlParser: true
+  }
+);
 
 app.use((req, res, next) => {
   req.io = io;
@@ -29,6 +36,12 @@ app.use((req, res, next) => {
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan("dev"));
+app.use(
+  "/files",
+  express.static(path.resolve(__dirname, "..", "tmp", "uploads"))
+);
 app.use(routes);
 
 server.listen(3333);
